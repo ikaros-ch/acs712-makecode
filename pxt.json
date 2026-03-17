@@ -1,0 +1,15 @@
+{
+  "name": "keyestudio-acs712",
+  "version": "0.0.1",
+  "description": "MakeCode extension for the Keyestudio ACS712-5A current sensor on micro:bit.",
+  "license": "MIT",
+  "dependencies": {
+    "core": "*"
+  },
+  "files": [
+    "acs712.ts",
+    "README.md",
+    "test.ts"
+  ],
+  "public": true
+}
