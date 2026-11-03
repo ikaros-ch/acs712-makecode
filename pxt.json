@@ -1,15 +1,31 @@
 {
-  "name": "keyestudio-acs712",
-  "version": "0.0.1",
-  "description": "MakeCode extension for the Keyestudio ACS712-5A current sensor on micro:bit.",
-  "license": "MIT",
-  "dependencies": {
-    "core": "*"
-  },
-  "files": [
-    "acs712.ts",
-    "README.md",
-    "test.ts"
-  ],
-  "public": true
+    "name": "acs712",
+    "version": "1.0.0",
+    "description": "ACS712 hall-effect current sensor (Keyestudio KS0187 5 A, 20 A, 30 A) for micro:bit",
+    "license": "MIT",
+    "dependencies": {
+        "core": "*"
+    },
+    "files": [
+        "README.md",
+        "acs712.ts",
+        "docs/calibrate-zero.md",
+        "docs/read-current-milli-amps.md",
+        "docs/read-current.md",
+        "docs/read-pin-voltage.md",
+        "docs/read-rms-current.md",
+        "docs/set-analog-reference.md",
+        "docs/set-model.md",
+        "docs/set-sensitivity.md",
+        "docs/set-sensor-to-pin-scale.md",
+        "docs/set-zero-voltage.md"
+    ],
+    "public": true,
+    "supportedTargets": [
+        "microbit"
+    ],
+    "preferredEditor": "blocksprj",
+    "testFiles": [
+        "test.ts"
+    ]
 }

@@ -1,6 +1,7 @@
 /**
  * MakeCode extension for ACS712 current sensors.
  * Designed for the Keyestudio KS0187 ACS712-5A board.
+ * Allegro ACS712 datasheet: https://www.allegromicro.com/-/media/files/datasheets/acs712-datasheet.ashx
  */
 
 //% color=#1B80C4 icon="\uf0e7" block="ACS712"
@@ -46,21 +47,25 @@ namespace acs712 {
     }
 
     /**
-     * Select the ACS712 model.
+     * Select the ACS712 model printed on the chip (5 A, 20 A or 30 A).
+     * @param model the sensor range, eg: acs712.Model.ACS712_5A
      */
     //% blockId=acs712_set_model block="ACS712 set model %model"
     //% group="Setup"
+    //% help=github:acs712/docs/set-model
     export function setModel(model: Model): void {
         sensitivityMvPerA = model as number
     }
 
     /**
-     * Set the sensor sensitivity in mV/A.
+     * Set the sensor sensitivity in mV/A, for boards not in the model list.
+     * @param mvPerA sensitivity in millivolts per amp, eg: 185
      */
     //% blockId=acs712_set_sensitivity block="ACS712 set sensitivity %mvPerA mV per A"
     //% mvPerA.defl=185
     //% group="Setup"
     //% advanced=true
+    //% help=github:acs712/docs/set-sensitivity
     export function setSensitivity(mvPerA: number): void {
         if (mvPerA > 0) {
             sensitivityMvPerA = mvPerA
@@ -70,11 +75,13 @@ namespace acs712 {
     /**
      * Set the ADC reference voltage in mV.
      * Use 3300 for a typical micro:bit analog input range.
+     * @param millivolts the voltage that reads as 1023, eg: 3300
      */
     //% blockId=acs712_set_adc_reference block="ACS712 set analog reference %millivolts mV"
     //% millivolts.defl=3300
     //% group="Setup"
     //% advanced=true
+    //% help=github:acs712/docs/set-analog-reference
     export function setAnalogReference(millivolts: number): void {
         if (millivolts > 0) {
             adcReferenceMv = millivolts
@@ -84,11 +91,13 @@ namespace acs712 {
     /**
      * Set how much larger the sensor voltage is than the micro:bit pin voltage.
      * 1 = direct connection, 2 = 2:1 divider, etc.
+     * @param scale divider ratio, eg: 2
      */
     //% blockId=acs712_set_scale block="ACS712 set sensor-to-pin voltage scale %scale"
     //% scale.defl=1
     //% group="Setup"
     //% advanced=true
+    //% help=github:acs712/docs/set-sensor-to-pin-scale
     export function setSensorToPinScale(scale: number): void {
         if (scale > 0) {
             sensorToPinScale = scale
@@ -97,11 +106,13 @@ namespace acs712 {
 
     /**
      * Manually set the zero-current voltage seen by the micro:bit pin, in mV.
+     * @param millivolts pin voltage with no current flowing, eg: 1250
      */
     //% blockId=acs712_set_zero_voltage block="ACS712 set zero voltage on pin to %millivolts mV"
     //% millivolts.defl=1650
     //% group="Setup"
     //% advanced=true
+    //% help=github:acs712/docs/set-zero-voltage
     export function setZeroVoltage(millivolts: number): void {
         zeroPinMv = millivolts
     }
@@ -109,11 +120,14 @@ namespace acs712 {
     /**
      * Average several readings with no current flowing and store that as the zero point.
      * Returns the measured zero-current pin voltage in mV.
+     * @param pin the analog pin the sensor OUT is wired to
+     * @param samples how many readings to average, eg: 64
      */
     //% blockId=acs712_calibrate_zero block="ACS712 calibrate zero on pin %pin with %samples samples"
     //% pin.defl=AnalogPin.P0
     //% samples.defl=64
     //% group="Setup"
+    //% help=github:acs712/docs/calibrate-zero
     export function calibrateZero(pin: AnalogPin, samples: number = 64): number {
         samples = clampSamples(samples)
         let total = 0
@@ -127,32 +141,38 @@ namespace acs712 {
 
     /**
      * Read the micro:bit pin voltage in mV.
+     * @param pin the analog pin the sensor OUT is wired to
      */
     //% blockId=acs712_read_pin_voltage block="ACS712 pin voltage on %pin (mV)"
     //% pin.defl=AnalogPin.P0
     //% group="Readings"
     //% advanced=true
+    //% help=github:acs712/docs/read-pin-voltage
     export function readPinVoltage(pin: AnalogPin): number {
         return readPinVoltageMv(pin)
     }
 
     /**
-     * Read DC current in amps.
+     * Read DC current in amps. Negative when current flows the other way.
+     * @param pin the analog pin the sensor OUT is wired to
      */
     //% blockId=acs712_read_current block="ACS712 current on %pin (A)"
     //% pin.defl=AnalogPin.P0
     //% group="Readings"
+    //% help=github:acs712/docs/read-current
     export function readCurrent(pin: AnalogPin): number {
         return currentFromPinVoltageMv(readPinVoltageMv(pin))
     }
 
     /**
-     * Read DC current in milliamps.
+     * Read DC current in milliamps. Negative when current flows the other way.
+     * @param pin the analog pin the sensor OUT is wired to
      */
     //% blockId=acs712_read_current_ma block="ACS712 current on %pin (mA)"
     //% pin.defl=AnalogPin.P0
     //% group="Readings"
     //% advanced=true
+    //% help=github:acs712/docs/read-current-milli-amps
     export function readCurrentMilliAmps(pin: AnalogPin): number {
         return readCurrent(pin) * 1000
     }
@@ -160,6 +180,9 @@ namespace acs712 {
     /**
      * Estimate RMS current by sampling the waveform.
      * Useful for AC or noisy signals.
+     * @param pin the analog pin the sensor OUT is wired to
+     * @param samples how many readings to take, eg: 200
+     * @param samplePeriodUs microseconds between readings, eg: 500
      */
     //% blockId=acs712_read_rms_current block="ACS712 RMS current on %pin with %samples samples every %samplePeriodUs us (A)"
     //% pin.defl=AnalogPin.P0
@@ -167,6 +190,7 @@ namespace acs712 {
     //% samplePeriodUs.defl=500
     //% group="Readings"
     //% advanced=true
+    //% help=github:acs712/docs/read-rms-current
     export function readRmsCurrent(pin: AnalogPin, samples: number = 200, samplePeriodUs: number = 500): number {
         samples = clampSamples(samples)
         samplePeriodUs = clampMicros(samplePeriodUs)
